@@ -5,11 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
 interface GenerateFunctionDocsProps {
-  tag: string;
+  tag?: string | null;
 }
 
 export function GenerateFunctionDocs({ tag }: GenerateFunctionDocsProps) {
-  const { runs, aggregate, error } = useGenerateFunctionDocs(tag);
+  const { runs, aggregate, error } = useGenerateFunctionDocs(tag ?? "");
 
   if (error) {
     return (

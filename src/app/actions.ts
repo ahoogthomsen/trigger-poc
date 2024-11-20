@@ -1,8 +1,11 @@
 "use server";
 
+import { z } from "zod";
 import { tasks } from "@trigger.dev/sdk/v3";
 import type { generateFunctionDocs } from "@/trigger/tasks";
-import { redirect } from "next/navigation";
+
+import { action } from "@/auth/safe-action";
+import { generatePublicAccessToken } from "@/lib/trigger";
 
 const mockFunctionsToDocument = {
   fetchUserData: `
@@ -27,8 +30,11 @@ const mockFunctionsToDocument = {
   `,
 };
 
-export async function startRun() {
-  const tag = "user-1234567";
+const tag = "user-hejsan-1";
+
+const schema = z.object({});
+
+export const startRunAction = action.schema(schema).action(async () => {
   console.log("Starting run with tag:", tag);
 
   const batchItems = Object.entries(mockFunctionsToDocument).map(
@@ -51,13 +57,18 @@ export async function startRun() {
   console.log(`Triggering batch with ${batchItems.length} items`);
 
   try {
-    const batchHandle = await tasks.batchTrigger<typeof generateFunctionDocs>(
+    await tasks.batchTrigger<typeof generateFunctionDocs>(
       "generate-function-docs",
       batchItems
     );
 
-    console.log("Batch triggered successfully:", batchHandle);
-    redirect(`/runs/${tag}`);
+    const accessToken = await generatePublicAccessToken(tag);
+
+    return {
+      status: "success",
+      tag,
+      accessToken,
+    };
   } catch (error) {
     if ((error as any)?.digest?.startsWith("NEXT_REDIRECT")) {
       throw error;
@@ -65,4 +76,4 @@ export async function startRun() {
     console.error("Failed to trigger batch:", error);
     throw error;
   }
-}
+});

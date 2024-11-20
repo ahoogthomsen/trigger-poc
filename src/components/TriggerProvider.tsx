@@ -6,9 +6,12 @@ export function TriggerProvider({
   accessToken,
   children,
 }: {
-  accessToken: string;
+  accessToken?: string | null;
   children: React.ReactNode;
 }) {
+  if (!accessToken) {
+    return null;
+  }
   return (
     <TriggerAuthContext.Provider
       value={{
