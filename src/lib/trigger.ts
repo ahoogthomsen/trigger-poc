@@ -1,10 +1,10 @@
 import { auth } from "@trigger.dev/sdk/v3";
 
-export async function generatePublicAccessToken(runId: string) {
+export async function generatePublicAccessToken(tagId: string) {
   return auth.createPublicToken({
     scopes: {
       read: {
-        runs: [runId],
+        tags: [tagId],
       },
     },
     expirationTime: "1h",

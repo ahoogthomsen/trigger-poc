@@ -1,24 +1,32 @@
 "use client";
 
 import { useGenerateFunctionDocs } from "@/app/hooks/useGenerateFunctionDocs";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
 export function GenerateFunctionDocs({ id }: { id: string }) {
-  const { status } = useGenerateFunctionDocs(id);
+  const { runs, aggregate, error } = useGenerateFunctionDocs(id);
 
-  if (status.state === "completed") {
+  if (error) {
     return (
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md mx-auto">
         <CardContent className="pt-6">
-          <h2 className="text-2xl font-bold mb-4 text-center">Run Completed</h2>
-          <p className="text-center">
-            Your run has finished successfully. Here are the results:
-          </p>
-          <div className="mt-4 p-4 bg-muted rounded-md">
-            <pre className="text-xs">
-              {status.output || "No results available."}
-            </pre>
+          <div className="text-center text-destructive">
+            <h2 className="text-xl font-bold mb-2">Error</h2>
+            <p>{error.message}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!runs.length) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardContent className="pt-6">
+          <div className="text-center">
+            <h2 className="text-xl font-bold mb-2">Loading...</h2>
+            <Progress value={undefined} className="w-full" />
           </div>
         </CardContent>
       </Card>
@@ -26,12 +34,50 @@ export function GenerateFunctionDocs({ id }: { id: string }) {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardContent className="pt-6">
-        <h2 className="text-2xl font-bold mb-4 text-center">Run in Progress</h2>
-        <Progress value={status.progress} className="w-full" />
-        <p className="mt-4 text-center text-muted-foreground">{status.label}</p>
-      </CardContent>
-    </Card>
+    <div className="w-full max-w-7xl mx-auto space-y-8">
+      {/* Aggregate Progress Card */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col items-center gap-4">
+            <h2 className="text-2xl font-bold">Overall Progress</h2>
+            <Progress value={aggregate.averageProgress} className="w-full" />
+            <p className="text-muted-foreground">
+              {aggregate.completedRuns} of {aggregate.totalRuns} functions
+              completed
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Grid of Individual Function Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {runs.map((run) => (
+          <Card key={run.id} className="flex flex-col">
+            <CardHeader>
+              <CardTitle className="text-lg truncate" title={run.functionName}>
+                {run.functionName}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 flex flex-col gap-4">
+              <Progress value={run.status.progress} />
+              <p className="text-sm text-muted-foreground">
+                {run.status.label}
+              </p>
+
+              {run.status.state === "completed" && run.status.output && (
+                <div className="mt-2">
+                  <p className="text-sm font-medium mb-2">Output:</p>
+                  <div className="bg-muted rounded-md p-3 max-h-32 overflow-y-auto">
+                    <pre className="text-xs whitespace-pre-wrap">
+                      {run.status.output}
+                    </pre>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }

@@ -35,6 +35,8 @@ export const generateFunctionDocs = schemaTask({
 
     await setTimeout(1000);
 
+    updateStatus({ progress: 100, label: "Completed!" });
+
     console.log(prompt);
     return {
       result: prompt,
