@@ -15,57 +15,94 @@ interface RunStatus {
   id: string;
   functionName: string;
   status: GenerateFunctionDocsStatus;
+  completedAt?: Date;
+  source: "realtime" | "database";
 }
 
-/**
- * Hook that subscribes to multiple generateFunctionDocs tasks and returns their statuses and outputs.
- *
- * Uses the `useRealtimeRunsWithTag` hook to subscribe to all tasks with the given tag.
- *
- * @param tag the tag used to identify the batch of runs
- */
-export function useGenerateFunctionDocs(tag: string) {
-  const { runs, error } =
+interface UseGenerateFunctionDocsProps {
+  tag: string;
+  // Completed runs from the database
+  completedRuns: Array<{
+    id: string;
+    functionName: string;
+    output: string;
+    completedAt: Date;
+  }>;
+}
+
+export function useGenerateFunctionDocs({
+  tag,
+  completedRuns,
+}: UseGenerateFunctionDocsProps) {
+  const { runs: activeRuns, error } =
     useRealtimeRunsWithTag<typeof generateFunctionDocs>(tag);
 
-  const runsStatus: RunStatus[] =
-    runs?.map((run) => {
+  // Convert active runs to RunStatus format
+  const activeRunsStatus: RunStatus[] =
+    activeRuns?.reduce<RunStatus[]>((acc, run) => {
+      const isCompleted = run.status === "COMPLETED";
+
+      // Skip if this run is already in completedRuns
+      if (isCompleted && completedRuns.some((cr) => cr.id === run.id)) {
+        return acc;
+      }
+
       const status: GenerateFunctionDocsStatus = {
-        state: run.status === "COMPLETED" ? "completed" : "running",
+        state: isCompleted ? "completed" : "running",
         progress: 0,
         label: "Initializing...",
         output: run.output?.result,
       };
 
-      // Parse metadata if available
       if (run.metadata) {
         const { progress, label } = parseStatus(run.metadata);
         status.progress = progress;
         status.label = label;
       }
 
-      return {
+      acc.push({
         id: run.id,
         functionName: run.payload.name,
         status,
-      };
-    }) ?? [];
+        completedAt: isCompleted ? new Date(run.updatedAt) : undefined,
+        source: "realtime",
+      });
 
-  // Calculate aggregate progress
+      return acc;
+    }, []) ?? [];
+
+  // Convert completed runs to RunStatus format
+  const completedRunsStatus: RunStatus[] = completedRuns.map((run) => ({
+    id: run.id,
+    functionName: run.functionName,
+    status: {
+      state: "completed",
+      progress: 100,
+      label: "Completed",
+      output: run.output,
+    },
+    completedAt: run.completedAt,
+    source: "database",
+  }));
+
+  // Combine both arrays, with active runs first
+  const allRuns = [...activeRunsStatus, ...completedRunsStatus];
+
   const aggregateStatus = {
-    totalRuns: runsStatus.length,
-    completedRuns: runsStatus.filter((r) => r.status.state === "completed")
+    totalRuns: allRuns.length,
+    completedRuns: allRuns.filter((run) => run.status.state === "completed")
       .length,
     averageProgress:
-      runsStatus.reduce((sum, run) => sum + run.status.progress, 0) /
-      (runsStatus.length || 1),
-    isComplete: runsStatus.every((run) => run.status.state === "completed"),
+      allRuns.reduce((sum, run) => sum + run.status.progress, 0) /
+      (allRuns.length || 1),
+    isComplete: allRuns.every((run) => run.status.state === "completed"),
   };
 
   return {
-    runs: runsStatus,
+    runs: allRuns,
     aggregate: aggregateStatus,
     error,
-    rawRuns: runs, // Include raw runs data if needed
+    activeRuns: activeRunsStatus,
+    completedRuns: completedRunsStatus,
   };
 }

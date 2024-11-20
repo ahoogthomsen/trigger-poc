@@ -4,8 +4,24 @@ import { useGenerateFunctionDocs } from "@/app/hooks/useGenerateFunctionDocs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
-export function GenerateFunctionDocs({ id }: { id: string }) {
-  const { runs, aggregate, error } = useGenerateFunctionDocs(id);
+interface GenerateFunctionDocsProps {
+  tag: string;
+  completedRuns: Array<{
+    id: string;
+    functionName: string;
+    output: string;
+    completedAt: Date;
+  }>;
+}
+
+export function GenerateFunctionDocs({
+  tag,
+  completedRuns,
+}: GenerateFunctionDocsProps) {
+  const { runs, aggregate, error } = useGenerateFunctionDocs({
+    tag,
+    completedRuns,
+  });
 
   if (error) {
     return (
