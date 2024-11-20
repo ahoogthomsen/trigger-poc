@@ -43,7 +43,7 @@ export default async function RunsPage({ params }: PageProps) {
   const accessToken = await generatePublicAccessToken(params.id);
   return (
     <TriggerProvider accessToken={accessToken}>
-      <GenerateFunctionDocs tag={params.id} completedRuns={formattedRuns} />
+      <GenerateFunctionDocs tag={params.id} />
     </TriggerProvider>
   );
 }

@@ -16,36 +16,16 @@ interface RunStatus {
   functionName: string;
   status: GenerateFunctionDocsStatus;
   completedAt?: Date;
-  source: "realtime" | "database";
 }
 
-interface UseGenerateFunctionDocsProps {
-  tag: string;
-  // Completed runs from the database
-  completedRuns: Array<{
-    id: string;
-    functionName: string;
-    output: string;
-    completedAt: Date;
-  }>;
-}
-
-export function useGenerateFunctionDocs({
-  tag,
-  completedRuns,
-}: UseGenerateFunctionDocsProps) {
+export function useGenerateFunctionDocs(tag: string) {
   const { runs: activeRuns, error } =
     useRealtimeRunsWithTag<typeof generateFunctionDocs>(tag);
 
   // Convert active runs to RunStatus format
-  const activeRunsStatus: RunStatus[] =
-    activeRuns?.reduce<RunStatus[]>((acc, run) => {
+  const runsStatus: RunStatus[] =
+    activeRuns?.map((run) => {
       const isCompleted = run.status === "COMPLETED";
-
-      // Skip if this run is already in completedRuns
-      if (isCompleted && completedRuns.some((cr) => cr.id === run.id)) {
-        return acc;
-      }
 
       const status: GenerateFunctionDocsStatus = {
         state: isCompleted ? "completed" : "running",
@@ -60,49 +40,27 @@ export function useGenerateFunctionDocs({
         status.label = label;
       }
 
-      acc.push({
+      return {
         id: run.id,
         functionName: run.payload.name,
         status,
         completedAt: isCompleted ? new Date(run.updatedAt) : undefined,
-        source: "realtime",
-      });
-
-      return acc;
-    }, []) ?? [];
-
-  // Convert completed runs to RunStatus format
-  const completedRunsStatus: RunStatus[] = completedRuns.map((run) => ({
-    id: run.id,
-    functionName: run.functionName,
-    status: {
-      state: "completed",
-      progress: 100,
-      label: "Completed",
-      output: run.output,
-    },
-    completedAt: run.completedAt,
-    source: "database",
-  }));
-
-  // Combine both arrays, with active runs first
-  const allRuns = [...activeRunsStatus, ...completedRunsStatus];
+      };
+    }) ?? [];
 
   const aggregateStatus = {
-    totalRuns: allRuns.length,
-    completedRuns: allRuns.filter((run) => run.status.state === "completed")
+    totalRuns: runsStatus.length,
+    completedRuns: runsStatus.filter((r) => r.status.state === "completed")
       .length,
     averageProgress:
-      allRuns.reduce((sum, run) => sum + run.status.progress, 0) /
-      (allRuns.length || 1),
-    isComplete: allRuns.every((run) => run.status.state === "completed"),
+      runsStatus.reduce((sum, run) => sum + run.status.progress, 0) /
+      (runsStatus.length || 1),
+    isComplete: runsStatus.every((run) => run.status.state === "completed"),
   };
 
   return {
-    runs: allRuns,
+    runs: runsStatus,
     aggregate: aggregateStatus,
     error,
-    activeRuns: activeRunsStatus,
-    completedRuns: completedRunsStatus,
   };
 }

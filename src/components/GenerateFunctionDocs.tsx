@@ -6,22 +6,10 @@ import { Progress } from "@/components/ui/progress";
 
 interface GenerateFunctionDocsProps {
   tag: string;
-  completedRuns: Array<{
-    id: string;
-    functionName: string;
-    output: string;
-    completedAt: Date;
-  }>;
 }
 
-export function GenerateFunctionDocs({
-  tag,
-  completedRuns,
-}: GenerateFunctionDocsProps) {
-  const { runs, aggregate, error } = useGenerateFunctionDocs({
-    tag,
-    completedRuns,
-  });
+export function GenerateFunctionDocs({ tag }: GenerateFunctionDocsProps) {
+  const { runs, aggregate, error } = useGenerateFunctionDocs(tag);
 
   if (error) {
     return (
