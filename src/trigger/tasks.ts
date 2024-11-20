@@ -1,12 +1,7 @@
-import { metadata, schemaTask } from "@trigger.dev/sdk/v3";
+import { schemaTask } from "@trigger.dev/sdk/v3";
 import { setTimeout } from "timers/promises";
-import { OpenAI } from "openai";
 import { z } from "zod";
 import { updateStatus } from "@/lib/metadataStore";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export const generateFunctionDocs = schemaTask({
   id: "generate-function-docs",
@@ -34,19 +29,15 @@ export const generateFunctionDocs = schemaTask({
 
     await setTimeout(1000);
 
-    const prompt = `Generate a jsdoc documentation comment for the following TypeScript/JavaScript code. Focus on describing parameters, return values, and purpose. Don't modify the code itself. Code: \`\`\`js\n${payload.code}\n\`\`\``;
-
-    const completion = await openai.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      model: "chatgpt-4o-latest",
-    });
+    const prompt = `Hello there`;
 
     updateStatus({ progress: 85, label: "Finalizing..." });
 
     await setTimeout(1000);
 
+    console.log(prompt);
     return {
-      result: completion.choices[0].message.content,
+      result: prompt,
     };
   },
 });

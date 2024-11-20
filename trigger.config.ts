@@ -1,7 +1,7 @@
 import { defineConfig } from "@trigger.dev/sdk/v3";
 
 export default defineConfig({
-  project: "<your project ref here>",
+  project: "proj_ecprhzuukspwpumnrorl",
   runtime: "node",
   logLevel: "log",
   maxDuration: 300,
