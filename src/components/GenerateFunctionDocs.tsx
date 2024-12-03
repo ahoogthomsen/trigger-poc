@@ -35,8 +35,8 @@ export function GenerateFunctionDocs({ tag }: GenerateFunctionDocsProps) {
       {runs.map((run) => (
         <Card key={run.id} className="flex flex-col">
           <CardHeader>
-            <CardTitle className="text-lg truncate" title={run.functionName}>
-              {run.functionName}
+            <CardTitle className="text-lg truncate" title={run.handlerId}>
+              {run.handlerId}
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col gap-4">

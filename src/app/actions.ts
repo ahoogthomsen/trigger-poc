@@ -7,37 +7,31 @@ import type { generateFunctionDocs } from "@/trigger/tasks";
 import { action } from "@/auth/safe-action";
 import { generatePublicAccessToken } from "@/lib/trigger";
 
-const mockFunctionsToDocument = {
-  fetchUserData: `
-    async function fetchUserData(userId: string) {
-      const response = await fetch(\`/api/users/\${userId}\`);
-      if (!response.ok) throw new Error('Failed to fetch user');
-      return response.json();
-    }
-  `,
-};
-
 const schema = z.object({});
 
 export const startRunAction = action.schema(schema).action(async () => {
+  const mockFunctionsToDocument: { handler_id: string }[] = [
+    {
+      handler_id: Math.random().toString(36).substring(2, 15),
+    },
+    {
+      handler_id: Math.random().toString(36).substring(2, 15),
+    },
+  ];
   const tag = `user-hejsan-${Math.random().toString(36).substring(2, 15)}`;
 
-  const batchItems = Object.entries(mockFunctionsToDocument).map(
-    ([name, code]) => ({
-      payload: {
-        name,
-        code,
-        tag,
+  const batchItems = mockFunctionsToDocument.map(({ handler_id }) => ({
+    payload: {
+      handler_id,
+    },
+    options: {
+      tags: [tag],
+      queue: {
+        name: "function-docs-queue",
+        concurrencyLimit: 5,
       },
-      options: {
-        tags: [tag],
-        queue: {
-          name: "function-docs-queue",
-          concurrencyLimit: 5,
-        },
-      },
-    })
-  );
+    },
+  }));
 
   console.log(`Triggering batch with ${batchItems.length} items`);
 

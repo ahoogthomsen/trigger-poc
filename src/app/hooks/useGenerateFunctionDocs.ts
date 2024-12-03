@@ -13,9 +13,10 @@ interface GenerateFunctionDocsStatus {
 
 interface RunStatus {
   id: string;
-  functionName: string;
+  handlerId: string;
   status: GenerateFunctionDocsStatus;
-  completedAt?: Date;
+  createdAt: Date;
+  startedAt?: Date;
 }
 
 export function useGenerateFunctionDocs(tag: string) {
@@ -41,19 +42,20 @@ export function useGenerateFunctionDocs(tag: string) {
 
       return {
         id: run.id,
-        functionName: run.payload.name,
+        handlerId: run.payload.handler_id,
         status,
-        completedAt: isCompleted ? new Date(run.updatedAt) : undefined,
+        createdAt: new Date(run.createdAt),
+        startedAt: run.startedAt ? new Date(run.startedAt) : undefined,
       };
     }) ?? [];
 
-  // If i try to sort the realtime (in order to always show the most recent runs at the top, the realtime subscription stops working)
-  // const sortedRuns = [...runsStatus].sort((a, b) => {
-  //   return (b.completedAt?.getTime() ?? 0) - (a.completedAt?.getTime() ?? 0);
-  // });
+  // Ok it works now for unknown reason
+  const sortedRuns = [...runsStatus].sort((a, b) => {
+    return (b.startedAt?.getTime() ?? 0) - (a.startedAt?.getTime() ?? 0);
+  });
 
   return {
-    runs: runsStatus,
+    runs: sortedRuns,
     error,
   };
 }

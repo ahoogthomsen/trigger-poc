@@ -7,8 +7,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin-client";
 export const generateFunctionDocs = schemaTask({
   id: "generate-function-docs",
   schema: z.object({
-    name: z.string(),
-    code: z.string(),
+    handler_id: z.string(),
   }),
   maxDuration: 300, // 5 minutes
   run: async (payload, { ctx }) => {
@@ -40,7 +39,8 @@ export const generateFunctionDocs = schemaTask({
     const { data, error } = await supabaseAdmin
       .from("test_table")
       .insert({
-        handle_id: `${Math.random()}-${Math.random()}`,
+        handle_id: payload.handler_id,
+        created_at: ctx.run.createdAt,
       })
       .select()
       .single();
