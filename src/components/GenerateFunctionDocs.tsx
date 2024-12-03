@@ -1,7 +1,6 @@
 "use client";
 
 import { useGenerateFunctionDocs } from "@/app/hooks/useGenerateFunctionDocs";
-import { TestTableRun } from "@/app/page";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
@@ -10,8 +9,7 @@ interface GenerateFunctionDocsProps {
 }
 
 export function GenerateFunctionDocs({ tag }: GenerateFunctionDocsProps) {
-  console.log("GenerateFunctionDocs", tag);
-  const { runs, aggregate, error } = useGenerateFunctionDocs(tag ?? "");
+  const { runs, error } = useGenerateFunctionDocs(tag ?? "");
 
   if (error) {
     return (

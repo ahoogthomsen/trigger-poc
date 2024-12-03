@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { useAction } from "next-safe-action/hooks";
 import { startRunAction } from "@/app/actions";
-import { useRouter } from "next/navigation";
 import { TriggerProvider } from "./TriggerProvider";
 import { GenerateFunctionDocs } from "./GenerateFunctionDocs";
 import { TestTableRun } from "@/app/page";
@@ -29,7 +28,7 @@ export function GenerateData({ initialRuns }: { initialRuns: TestTableRun[] }) {
         type="button"
         size="lg"
       >
-        Start New Run
+        Play that funky music white boy
       </Button>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

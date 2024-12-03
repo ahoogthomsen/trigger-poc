@@ -1,5 +1,6 @@
 import { GenerateData } from "@/components/GenerateData.client";
 import { createClient } from "@/lib/supabase/server";
+import { unstable_noStore } from "next/cache";
 
 export type TestTableRun = {
   id: string;
@@ -8,16 +9,17 @@ export type TestTableRun = {
 };
 
 export default async function Home() {
+  unstable_noStore();
   const supabase = createClient();
 
   const { data: existingRuns } = await supabase
     .from("test_table")
     .select("*")
     .order("created_at", { ascending: false });
-
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <h1 className="mb-8 text-4xl font-bold">Trigger.dev realtime POC</h1>
+
       <GenerateData initialRuns={existingRuns ?? []} />
     </main>
   );

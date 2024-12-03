@@ -15,27 +15,12 @@ const mockFunctionsToDocument = {
       return response.json();
     }
   `,
-  calculateTotal: `
-    function calculateTotal(items: { price: number; quantity: number }[]) {
-      return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    }
-  `,
-  formatDateTime: `
-    function formatDateTime(date: Date) {
-      return new Intl.DateTimeFormat('en-US', {
-        dateStyle: 'full',
-        timeStyle: 'long'
-      }).format(date);
-    }
-  `,
 };
-
-const tag = `user-hejsan-${Math.random().toString(36).substring(2, 15)}`;
 
 const schema = z.object({});
 
 export const startRunAction = action.schema(schema).action(async () => {
-  console.log("Starting run with tag:", tag);
+  const tag = `user-hejsan-${Math.random().toString(36).substring(2, 15)}`;
 
   const batchItems = Object.entries(mockFunctionsToDocument).map(
     ([name, code]) => ({
@@ -45,7 +30,7 @@ export const startRunAction = action.schema(schema).action(async () => {
         tag,
       },
       options: {
-        tags: [tag, "user-hejsan"],
+        tags: [tag],
         queue: {
           name: "function-docs-queue",
           concurrencyLimit: 5,
