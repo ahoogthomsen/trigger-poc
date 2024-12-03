@@ -47,6 +47,11 @@ export function useGenerateFunctionDocs(tag: string) {
       };
     }) ?? [];
 
+  // If i try to sort the realtime (in order to always show the most recent runs at the top, the realtime subscription stops working)
+  // const sortedRuns = [...runsStatus].sort((a, b) => {
+  //   return (b.completedAt?.getTime() ?? 0) - (a.completedAt?.getTime() ?? 0);
+  // });
+
   return {
     runs: runsStatus,
     error,
