@@ -1,5 +1,4 @@
 import { StartRunButton } from "@/components/StartRunButton";
-import { TriggerProvider } from "@/components/TriggerProvider";
 
 export default async function Home() {
   return (

@@ -12,10 +12,8 @@ export function StartRunButton() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [runTag, setRunTag] = useState<string | null>(null);
 
-  const router = useRouter();
   const { execute } = useAction(startRunAction, {
     onSuccess: (data) => {
-      //  router.push(`/runs/${data?.data?.tag}`);
       setRunTag(data?.data?.tag ?? null);
       setAccessToken(data?.data?.accessToken ?? null);
     },
@@ -25,11 +23,10 @@ export function StartRunButton() {
       <Button onClick={() => execute({})} type="button" size="lg">
         Start New Run
       </Button>
-      {
-        <TriggerProvider accessToken={accessToken}>
-          <GenerateFunctionDocs tag={runTag} />
-        </TriggerProvider>
-      }
+
+      <TriggerProvider accessToken={accessToken}>
+        <GenerateFunctionDocs tag={runTag} />
+      </TriggerProvider>
     </>
   );
 }

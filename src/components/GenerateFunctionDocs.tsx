@@ -9,6 +9,7 @@ interface GenerateFunctionDocsProps {
 }
 
 export function GenerateFunctionDocs({ tag }: GenerateFunctionDocsProps) {
+  console.log("GenerateFunctionDocs", tag);
   const { runs, aggregate, error } = useGenerateFunctionDocs(tag ?? "");
 
   if (error) {

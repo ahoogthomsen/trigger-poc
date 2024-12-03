@@ -30,7 +30,7 @@ const mockFunctionsToDocument = {
   `,
 };
 
-const tag = "user-hejsan-1";
+const tag = `user-hejsan-${Math.random().toString(36).substring(2, 15)}`;
 
 const schema = z.object({});
 
@@ -45,7 +45,7 @@ export const startRunAction = action.schema(schema).action(async () => {
         tag,
       },
       options: {
-        tags: [tag],
+        tags: [tag, "user-hejsan"],
         queue: {
           name: "function-docs-queue",
           concurrencyLimit: 5,

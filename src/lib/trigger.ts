@@ -7,6 +7,6 @@ export async function generatePublicAccessToken(tagId: string) {
         tags: [tagId],
       },
     },
-    expirationTime: "1h",
+    expirationTime: "15m",
   });
 }
